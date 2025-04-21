@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pope in Gulag</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: "Pixelify Sans", sans-serif;
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/webfonts/fa-solid-900.woff2') format('woff2');
+            font-display: swap;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: "Pixelify Sans", sans-serif;
+            color: #fff;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('bg.png');
+            background-size: cover;
+            position: relative;
+        }
+        
+        #title-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+        }
+        
+        #title-screen h1 {
+            font-size: 5vw;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            animation: pulse 2s infinite;
+            font-family: "Pixelify Sans", sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        #title-screen .subtitle {
+            font-size: 2vw;
+            margin-bottom: 20px;
+            color: #00ccff;
+            text-shadow: 0 0 5px #0066ff;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 90;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        #instructions h2 {
+            font-size: 3vw;
+            margin-bottom: 20px;
+            color: #fff;
+            font-family: "Pixelify Sans", sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        #instructions p {
+            font-size: 1.5vw;
+            margin-bottom: 15px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        #play-button {
+            padding: 12px 24px;
+            font-size: 24px;
+            background: linear-gradient(to right, #0088ff, #00ccff);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.8);
+        }
+        
+        #start-button {
+            padding: 12px 24px;
+            font-size: 24px;
+            background: linear-gradient(to right, #6a0dad, #9400d3);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+        }
+        
+        .character {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        #player {
+            bottom: 10%;
+            left: 10%;
+            background-image: url('pope.png');
+        }
+        
+        #enemy {
+            bottom: 10%;
+            right: 10%;
+            background-image: url('devil.png');
+            transform: scaleX(-1);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .health-bar-container {
+            position: absolute;
+            width: 20%;
+            height: 30px;
+            background-color: #333;
+            border: 2px solid #fff;
+        }
+        
+        #player-health-container {
+            left: 5%;
+            top: 100px;
+        }
+        
+        #enemy-health-container {
+            right: 5%;
+            top: 100px;
+        }
+        
+        .health-bar {
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        #player-health {
+            background: linear-gradient(to right, #0066ff, #00ccff);
+        }
+        
+        #enemy-health {
+            background: linear-gradient(to right, #ff0000, #ff5500);
+        }
+        
+        .beam {
+            position: absolute;
+            height: 20px;
+            border-radius: 10px;
+            z-index: 5;
+        }
+        
+        .player-beam {
+            background: linear-gradient(to right, #0066ff, #00ccff);
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.7);
+        }
+        
+        .enemy-beam {
+            background: linear-gradient(to right, #ff0000, #ff3300);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+        }
+        
+        .enemy-special-beam {
+            background: linear-gradient(to right, #ff00ff, #ff66ff);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            height: 30px;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+        }
+        
+        #game-over h2 {
+            font-size: 5vw;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #restart-button {
+            padding: 12px 24px;
+            font-size: 24px;
+            background: linear-gradient(to right, #ff0000, #ff5500);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #restart-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+        
+        .effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            opacity: 0;
+            animation: explode 0.5s forwards;
+        }
+        
+        .life-pickup {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #ff0066;
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.7);
+            animation: float 2s infinite ease-in-out;
+        }
+        
+        .life-pickup::before, .life-pickup::after {
+            content: '';
+            position: absolute;
+            background-color: #ff0066;
+        }
+        
+        .life-pickup::before {
+            width: 40px;
+            height: 15px;
+            top: 12px;
+        }
+        
+        .life-pickup::after {
+            width: 15px;
+            height: 40px;
+            left: 12px;
+        }
+        
+        #lives-display {
+            position: absolute;
+            top: 60px;
+            left: 5%;
+            font-size: 20px;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #social-links {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-button {
+            padding: 5px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        .twitter-button {
+            background: linear-gradient(to right, #1DA1F2, #0d8ecf);
+        }
+        
+        .telegram-button {
+            background: linear-gradient(to right, #0088cc, #0055aa);
+        }
+        
+        .buy-button {
+            background: linear-gradient(to right, #ff5500, #ff8800);
+        }
+        
+        #header-container {
+            position: absolute;
+            top: 60px;
+            width: 300px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #game-title {
+            font-size: 34px;
+            color: #ff00ff;
+            text-shadow: 0 0 8px #ff00ff;
+            margin-bottom: 5px;
+            font-family: "Pixelify Sans", sans-serif;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+        }
+        
+        #game-subtitle {
+            font-size: 16px;
+            color: #00ccff;
+            text-shadow: 0 0 5px #0066ff;
+            margin-bottom: 10px;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #score-container {
+            position: absolute;
+            top: 60px;
+            left: 80%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 18px;
+            color: #ccc;
+            font-family: "Pixelify Sans", sans-serif;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+            50% { text-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff; }
+            100% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes enemyTeleport {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="title-screen">
+        <h1>POPE IN GULAG</h1>
+        <button id="start-button">START GAME</button>
+    </div>
+    
+    <div id="instructions">
+        <h2>HOW TO PLAY</h2>
+        <p>You are the Pope trapped in a Gulag, fighting against evil forces!</p>
+        <p><strong>A/D</strong> - Move left/right</p>
+        <p><strong>W</strong> - Jump (use this to dodge enemy beams)</p>
+        <p><strong>SPACE</strong> - Shoot holy beam</p>
+        <p>Collect health pickups to restore your life. You have 3 lives.</p>
+        <p>Defeat the enemy before they defeat you!</p>
+        <button id="play-button">PLAY NOW</button>
+    </div>
+    
+    <div id="player" class="character"></div>
+    <div id="enemy" class="character"></div>
+    
+    <div id="player-health-container" class="health-bar-container">
+        <div id="player-health" class="health-bar"></div>
+    </div>
+    
+    <div id="enemy-health-container" class="health-bar-container">
+        <div id="enemy-health" class="health-bar"></div>
+    </div>
+    
+    <div id="social-links">
+        <a href="https://x.com/PopeDotgulag" class="social-button twitter-button" target="_blank">Twitter</a>
+        <a href="https://t.me/popegulag" class="social-button telegram-button" target="_blank">Telegram</a>
+        <a href="https://pump.fun/profile/HFRYwJ1An8YJwno2efUkvULevG4Yb7Y2CWZYKwNQBYWW" class="social-button buy-button" target="_blank">Buy $GULAG</a>
+    </div>
+    
+    <div id="header-container">
+        <div id="game-title">POPE IN GULAG</div>
+        <div id="game-subtitle">CA HERE</div>
+    </div>
+    
+    <div id="score-container">Score: <span id="score-display">0</span></div>
+    <div id="lives-display">Lives: 3</div>
+    
+    <div id="game-over">
+        <h2 id="result-text">GAME OVER</h2>
+        <button id="restart-button">PLAY AGAIN</button>
+    </div>
+    
+    <div id="controls">
+        Controls: A/D to move | SPACE to shoot | W to jump
+    </div>
+    
+    <script>
+        // Game variables
+        let gameActive = false;
+        let playerHealth = 100;
+        let enemyHealth = 100;
+        let playerPosition = window.innerWidth * 0.1;
+        let enemyPosition = window.innerWidth * 0.9;
+        let playerJumping = false;
+        let playerY = 0;
+        let jumpVelocity = 0;
+        let playerBeamActive = false;
+        let enemyBeamActive = false;
+        let playerBeamTimeout;
+        let enemyBeamTimeout;
+        let enemyAttackPattern = 0;
+        let enemyTeleporting = false;
+        let score = 0;
+        let lives = 3;
+        let gameInterval;
+        let screenWidth = window.innerWidth;
+        let screenHeight = window.innerHeight;
+        let lifePickups = [];
+        let enemyDirection = 1;
+        let enemyJumping = false;
+        let enemyY = 0;
+        let enemyJumpVelocity = 0;
+        let specialAttackCooldown = false;
+        
+        // Game elements
+        const titleScreen = document.getElementById('title-screen');
+        const instructions = document.getElementById('instructions');
+        const startButton = document.getElementById('start-button');
+        const playButton = document.getElementById('play-button');
+        const player = document.getElementById('player');
+        const enemy = document.getElementById('enemy');
+        const playerHealthBar = document.getElementById('player-health');
+        const enemyHealthBar = document.getElementById('enemy-health');
+        const gameOver = document.getElementById('game-over');
+        const resultText = document.getElementById('result-text');
+        const restartButton = document.getElementById('restart-button');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            screenWidth = window.innerWidth;
+            screenHeight = window.innerHeight;
+        });
+        
+        // Key states
+        const keys = {
+            a: false,
+            d: false,
+            w: false,
+            space: false
+        };
+        
+        // Event listeners
+        startButton.addEventListener('click', showInstructions);
+        playButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', restartGame);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'a') keys.a = true;
+            if (e.key === 'd') keys.d = true;
+            if (e.key === 'w') keys.w = true;
+            if (e.key === ' ') {
+                keys.space = true;
+                e.preventDefault(); // Prevent page scrolling
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a') keys.a = false;
+            if (e.key === 'd') keys.d = false;
+            if (e.key === 'w') keys.w = false;
+            if (e.key === ' ') keys.space = false;
+        });
+        
+        // Game functions
+        function showInstructions() {
+            titleScreen.style.display = 'none';
+            instructions.style.display = 'flex';
+        }
+        
+        function startGame() {
+            instructions.style.display = 'none';
+            gameActive = true;
+            playerPosition = window.innerWidth * 0.1;
+            enemyPosition = window.innerWidth * 0.9;
+            gameInterval = setInterval(updateGame, 16);
+            
+            // Spawn life pickups periodically
+            setInterval(spawnLifePickup, 15000); // Spawn every 15 seconds
+            
+            // Enemy attack patterns
+            setInterval(updateEnemyAttackPattern, 5000); // Change attack pattern every 5 seconds
+        }
+        
+        function restartGame() {
+            playerHealth = 100;
+            enemyHealth = 100;
+            playerPosition = window.innerWidth * 0.1;
+            enemyPosition = window.innerWidth * 0.9;
+            playerY = 0;
+            enemyY = 0;
+            score = 0;
+            lives = 3;
+            enemyAttackPattern = 0;
+            enemyTeleporting = false;
+            
+            // Remove any existing life pickups
+            lifePickups.forEach(pickup => {
+                if (document.body.contains(pickup.element)) {
+                    document.body.removeChild(pickup.element);
+                }
+            });
+            lifePickups = [];
+            
+            updateScore();
+            updateLives();
+            updateHealthBars();
+            gameOver.style.display = 'none';
+            gameActive = true;
+            gameInterval = setInterval(updateGame, 16);
+        }
+        
+        function updateEnemyAttackPattern() {
+            if (!gameActive) return;
+            
+            // Switch to a new random attack pattern
+            enemyAttackPattern = Math.floor(Math.random() * 4); // 0-3
+            
+            // 20% chance for teleport attack if not already teleporting
+            if (Math.random() < 0.2 && !enemyTeleporting && !specialAttackCooldown) {
+                enemyTeleportAttack();
+            }
+        }
+        
+        function enemyTeleportAttack() {
+            if (!gameActive) return;
+            
+            enemyTeleporting = true;
+            specialAttackCooldown = true;
+            
+            // Visual effect for teleport
+            enemy.style.animation = "enemyTeleport 0.5s forwards";
+            
+            // Teleport enemy near player
+            setTimeout(() => {
+                if (!gameActive) return;
+                
+                const teleportOffset = screenWidth * 0.2;
+                enemyPosition = Math.max(screenWidth * 0.3, 
+                                     Math.min(playerPosition + teleportOffset, 
+                                          screenWidth * 0.8));
+                enemy.style.left = `${enemyPosition}px`;
+                
+                // Make enemy face player by flipping the sprite
+                if (enemyPosition < playerPosition) {
+                    enemy.style.transform = "scaleX(1)"; // Face right
+                } else {
+                    enemy.style.transform = "scaleX(-1)"; // Face left
+                }
+                
+                // Special attack after teleport
+                setTimeout(() => {
+                    if (!gameActive) return;
+                    shootSpecialBeam();
+                    enemyTeleporting = false;
+                }, 500);
+                
+                // Reset cooldown after 8 seconds
+                setTimeout(() => {
+                    specialAttackCooldown = false;
+                }, 8000);
+                
+            }, 500); // Half a second for teleport effect
+        }
+        
+        function spawnLifePickup() {
+            if (!gameActive) return;
+            
+            const pickup = document.createElement('div');
+            pickup.className = 'life-pickup';
+            
+            // Random position between player and enemy
+            const minX = Math.min(playerPosition, enemyPosition) + 100;
+            const maxX = Math.max(playerPosition, enemyPosition) - 100;
+            const randomX = minX + Math.random() * (maxX - minX);
+            
+            pickup.style.left = `${randomX}px`;
+            pickup.style.bottom = `${screenHeight * 0.1 + 50}px`; // Above ground level
+            
+            document.body.appendChild(pickup);
+            
+            const pickupObj = {
+                element: pickup,
+                x: randomX,
+                y: screenHeight * 0.1 + 50
+            };
+            
+            lifePickups.push(pickupObj);
+            
+            // Remove pickup after 10 seconds if not collected
+            setTimeout(() => {
+                const index = lifePickups.indexOf(pickupObj);
+                if (index !== -1) {
+                    lifePickups.splice(index, 1);
+                    if (document.body.contains(pickup)) {
+                        document.body.removeChild(pickup);
+                    }
+                }
+            }, 10000);
+        }
+        
+        function updateGame() {
+            if (!gameActive) return;
+            
+            const moveSpeed = screenWidth * 0.005; // Adjust movement speed based on screen width
+            
+            // Player movement
+            if (keys.a && playerPosition > 10) {
+                playerPosition -= moveSpeed;
+            }
+            if (keys.d && playerPosition < screenWidth - 90) {
+                playerPosition += moveSpeed;
+            }
+            
+            // Player jump
+            if (keys.w && !playerJumping) {
+                playerJumping = true;
+                jumpVelocity = screenHeight * 0.03;
+            }
+            
+            if (playerJumping) {
+                playerY += jumpVelocity;
+                jumpVelocity -= screenHeight * 0.002;
+                
+                if (playerY <= 0) {
+                    playerY = 0;
+                    playerJumping = false;
+                }
+            }
+            
+            // Player shooting
+            if (keys.space && !playerBeamActive) {
+                shootPlayerBeam();
+            }
+            
+            // Update enemy based on current attack pattern
+            updateEnemyBehavior();
+            
+            // Check for life pickup collisions
+            checkLifePickupCollisions();
+            
+            // Update positions
+            player.style.left = `${playerPosition}px`;
+            player.style.bottom = `${screenHeight * 0.1 + playerY}px`;
+            enemy.style.left = `${enemyPosition}px`;
+            enemy.style.bottom = `${screenHeight * 0.1 + enemyY}px`;
+            
+            // Check for game over
+            if (playerHealth <= 0) {
+                lives--;
+                updateLives();
+                
+                if (lives <= 0) {
+                    endGame(false);
+                } else {
+                    playerHealth = 100;
+                    updateHealthBars();
+                }
+            }
+            
+            if (enemyHealth <= 0) {
+                endGame(true);
+            }
+        }
+        
+        function updateEnemyBehavior() {
+            if (enemyTeleporting) return;
+            
+            const moveSpeed = screenWidth * 0.004; // Slightly slower than player
+            
+            // Enemy jumping
+            if (enemyJumping) {
+                enemyY += enemyJumpVelocity;
+                enemyJumpVelocity -= screenHeight * 0.002;
+                
+                if (enemyY <= 0) {
+                    enemyY = 0;
+                    enemyJumping = false;
+                }
+            }
+            
+            // Different behavior based on attack pattern
+            switch(enemyAttackPattern) {
+                case 0: // Basic movement and attack
+                    // Move randomly
+                    if (Math.random() < 0.02) {
+                        enemyDirection = Math.random() > 0.5 ? 1 : -1;
+                    }
+                    
+                    enemyPosition += enemyDirection * moveSpeed;
+                    
+                    // Keep enemy within bounds
+                    const minEnemyPos = screenWidth * 0.5;
+                    const maxEnemyPos = screenWidth - 90;
+                    if (enemyPosition < minEnemyPos) {
+                        enemyPosition = minEnemyPos;
+                        enemyDirection *= -1;
+                    }
+                    if (enemyPosition > maxEnemyPos) {
+                        enemyPosition = maxEnemyPos;
+                        enemyDirection *= -1;
+                    }
+                    
+                    // Update enemy orientation based on direction
+                    enemy.style.transform = enemyDirection > 0 ? "scaleX(-1)" : "scaleX(1)";
+                    
+                    // Random shooting
+                    if (Math.random() < 0.01 && !enemyBeamActive) {
+                        shootEnemyBeam();
+                    }
+                    break;
+                    
+                case 1: // Aggressive chase
+                    // Face and move toward player
+                    if (enemyPosition > playerPosition + 100) {
+                        enemyPosition -= moveSpeed * 1.5;
+                        enemy.style.transform = "scaleX(1)"; // Face left
+                    } else if (enemyPosition < playerPosition - 100) {
+                        enemyPosition += moveSpeed * 1.5;
+                        enemy.style.transform = "scaleX(-1)"; // Face right
+                    }
+                    
+                    // Shoot more frequently
+                    if (Math.random() < 0.03 && !enemyBeamActive) {
+                        shootEnemyBeam();
+                    }
+                    
+                    // Jump occasionally to dodge
+                    if (Math.random() < 0.01 && !enemyJumping) {
+                        enemyJumping = true;
+                        enemyJumpVelocity = screenHeight * 0.025;
+                    }
+                    break;
+                    
+                case 2: // Keep distance and rapid fire
+                    // Try to maintain distance
+                    const idealDistance = screenWidth * 0.4;
+                    const currentDistance = Math.abs(enemyPosition - playerPosition);
+                    
+                    if (currentDistance < idealDistance) {
+                        // Move away from player
+                        if (enemyPosition > playerPosition) {
+                            enemyPosition += moveSpeed;
+                            enemy.style.transform = "scaleX(-1)"; // Face left
+                        } else {
+                            enemyPosition -= moveSpeed;
+                            enemy.style.transform = "scaleX(1)"; // Face right
+                        }
+                    }
+                    
+                    // Rapid fire mode
+                    if (Math.random() < 0.05 && !enemyBeamActive) {
+                        shootEnemyBeam();
+                    }
+                    break;
+                    
+                case 3: // Erratic movement and jumps
+                    // Random position changes
+                    if (Math.random() < 0.03) {
+                        enemyDirection = Math.random() > 0.5 ? 1 : -1;
+                        const jumpChance = Math.random();
+                        
+                        if (jumpChance < 0.3 && !enemyJumping) {
+                            enemyJumping = true;
+                            enemyJumpVelocity = screenHeight * (0.02 + Math.random() * 0.02);
+                        }
+                    }
+                    
+                    enemyPosition += enemyDirection * moveSpeed * 1.5;
+                    
+                    // Keep enemy within bounds
+                    if (enemyPosition < screenWidth * 0.3) {
+                        enemyPosition = screenWidth * 0.3;
+                        enemyDirection *= -1;
+                    }
+                    if (enemyPosition > screenWidth - 90) {
+                        enemyPosition = screenWidth - 90;
+                        enemyDirection *= -1;
+                    }
+                    
+                    // Update enemy orientation based on direction
+                    enemy.style.transform = enemyDirection > 0 ? "scaleX(-1)" : "scaleX(1)";
+                    
+                    // Shoot occasionally, but aim better
+                    if (Math.random() < 0.02 && !enemyBeamActive) {
+                        shootEnemyBeam();
+                    }
+                    break;
+            }
+        }
+        
+        function checkLifePickupCollisions() {
+            for (let i = lifePickups.length - 1; i >= 0; i--) {
+                const pickup = lifePickups[i];
+                
+                // Check if player collides with pickup
+                if (Math.abs(playerPosition + 75 - pickup.x) < 50 && 
+                    Math.abs((screenHeight * 0.1 + playerY + 100) - pickup.y) < 70) {
+                    
+                    // Increase health
+                    playerHealth = Math.min(playerHealth + 25, 100);
+                    updateHealthBars();
+                    
+                    // Remove pickup
+                    document.body.removeChild(pickup.element);
+                    lifePickups.splice(i, 1);
+                    
+                    // Visual effect
+                    createHitEffect(playerPosition + 75, screenHeight * 0.1 + playerY + 100);
+                }
+            }
+        }
+        
+        function shootPlayerBeam() {
+            playerBeamActive = true;
+            
+            const beam = document.createElement('div');
+            beam.className = 'beam player-beam';
+            beam.style.bottom = `${screenHeight * 0.1 + playerY + 60}px`;
+            beam.style.left = `${playerPosition + 80}px`;
+            document.body.appendChild(beam);
+            
+            // Animate beam
+            let beamWidth = 0;
+            let beamInterval = setInterval(() => {
+                beamWidth += screenWidth * 0.02;
+                beam.style.width = `${beamWidth}px`;
+                
+                // Check for hit
+                if (playerPosition + 80 + beamWidth >= enemyPosition && 
+                    Math.abs((screenHeight * 0.1 + playerY + 60) - (screenHeight * 0.1 + enemyY + 60)) < 50) {
+                    enemyHealth -= 10;
+                    updateHealthBars();
+                    createHitEffect(enemyPosition, screenHeight * 0.1 + enemyY + 60);
+                    score += 100;
+                    updateScore();
+                    clearInterval(beamInterval);
+                    document.body.removeChild(beam);
+                }
+                
+                if (beamWidth >= screenWidth || !gameActive) {
+                    clearInterval(beamInterval);
+                    if (document.body.contains(beam)) {
+                        document.body.removeChild(beam);
+                    }
+                }
+            }, 16);
+            
+            playerBeamTimeout = setTimeout(() => {
+                playerBeamActive = false;
+            }, 1000);
+        }
+
+        function shootEnemyBeam() {
+            enemyBeamActive = true;
+            
+            // Determine beam starting position based on enemy orientation
+            const beamStartX = enemy.style.transform === "scaleX(1)" ? 
+                               enemyPosition : 
+                               enemyPosition + 150;
+            
+            // Create beam element
+            const beam = document.createElement('div');
+            beam.className = 'beam enemy-beam';
+            beam.style.bottom = `${screenHeight * 0.1 + enemyY + 60}px`;
+            
+            // Set beam direction and position based on enemy orientation
+            if (enemy.style.transform === "scaleX(1)") {
+                // Shooting left
+                beam.style.right = `${screenWidth - enemyPosition}px`;
+            } else {
+                // Shooting right
+                beam.style.left = `${enemyPosition + 80}px`;
+            }
+            
+            document.body.appendChild(beam);
+            
+            // Animate beam
+            let beamWidth = 0;
+            const maxBeamWidth = screenWidth * 0.5; // 50% of screen width
+            let beamInterval = setInterval(() => {
+                beamWidth += screenWidth * 0.015;
+                beam.style.width = `${beamWidth}px`;
+                
+                // Check for hit based on direction
+                if (enemy.style.transform === "scaleX(1)") {
+                    // Beam going left
+                    if (enemyPosition - beamWidth <= playerPosition + 80 && 
+                        Math.abs(playerY - enemyY) < screenHeight * 0.1) {
+                        playerHealth -= 15;
+                        updateHealthBars();
+                        createHitEffect(playerPosition, screenHeight * 0.1 + playerY + 60);
+                        clearInterval(beamInterval);
+                        document.body.removeChild(beam);
+                    }
+                } else {
+                    // Beam going right
+                    if (enemyPosition + 80 + beamWidth >= playerPosition && 
+                        Math.abs(playerY - enemyY) < screenHeight * 0.1) {
+                        playerHealth -= 15;
+                        updateHealthBars();
+                        createHitEffect(playerPosition, screenHeight * 0.1 + playerY + 60);
+                        clearInterval(beamInterval);
+                        document.body.removeChild(beam);
+                    }
+                }
+                
+                if (beamWidth >= maxBeamWidth || !gameActive) {
+                    clearInterval(beamInterval);
+                    if (document.body.contains(beam)) {
+                        document.body.removeChild(beam);
+                    }
+                }
+            }, 16);
+            
+            // Variable cooldown based on attack pattern
+            const cooldownTime = enemyAttackPattern === 2 ? 500 : 2000; // Faster for rapid fire mode
+            
+            enemyBeamTimeout = setTimeout(() => {
+                enemyBeamActive = false;
+            }, cooldownTime);
+        }
+
+        function shootSpecialBeam() {
+            if (!gameActive) return;
+            
+            // Create special beam element - this is a larger, more powerful beam
+            const beam = document.createElement('div');
+            beam.className = 'beam enemy-special-beam';
+            beam.style.bottom = `${screenHeight * 0.1 + enemyY + 55}px`; // Centered vertically
+            
+            // Set beam direction and position based on enemy orientation
+            if (enemy.style.transform === "scaleX(1)") {
+                // Shooting left
+                beam.style.right = `${screenWidth - enemyPosition}px`;
+            } else {
+                // Shooting right
+                beam.style.left = `${enemyPosition + 80}px`;
+            }
+            
+            document.body.appendChild(beam);
+            
+            // Create visual effect
+            createHitEffect(enemyPosition, screenHeight * 0.1 + enemyY + 60);
+            
+            // Animate beam - faster and more powerful
+            let beamWidth = 0;
+            const maxBeamWidth = screenWidth * 0.7; // 70% of screen width
+            let beamInterval = setInterval(() => {
+                beamWidth += screenWidth * 0.02;
+                beam.style.width = `${beamWidth}px`;
+                
+                // Check for hit based on direction - wider hit area
+                if (enemy.style.transform === "scaleX(1)") {
+                    // Beam going left
+                    if (enemyPosition - beamWidth <= playerPosition + 80 && 
+                        Math.abs(playerY - enemyY) < screenHeight * 0.15) {
+                        playerHealth -= 30; // More damage
+                        updateHealthBars();
+                        createHitEffect(playerPosition, screenHeight * 0.1 + playerY + 60);
+                    }
+                } else {
+                    // Beam going right
+                    if (enemyPosition + 80 + beamWidth >= playerPosition && 
+                        Math.abs(playerY - enemyY) < screenHeight * 0.15) {
+                        playerHealth -= 30; // More damage
+                        updateHealthBars();
+                        createHitEffect(playerPosition, screenHeight * 0.1 + playerY + 60);
+                    }
+                }
+                
+                if (beamWidth >= maxBeamWidth || !gameActive) {
+                    clearInterval(beamInterval);
+                    if (document.body.contains(beam)) {
+                        document.body.removeChild(beam);
+                    }
+                }
+            }, 16);
+            
+            // Show explosion effects along the beam path
+            const explosionCount = 5;
+            for (let i = 1; i <= explosionCount; i++) {
+                setTimeout(() => {
+                    if (!gameActive) return;
+                    
+                    const explosionX = enemy.style.transform === "scaleX(1)" ?
+                                      enemyPosition - (maxBeamWidth / explosionCount) * i :
+                                      enemyPosition + 80 + (maxBeamWidth / explosionCount) * i;
+                                      
+                    createHitEffect(explosionX, screenHeight * 0.1 + enemyY + 60);
+                }, i * 100);
+            }
+        }
+
+        function createHitEffect(x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'effect';
+            effect.style.left = `${x - 50}px`; // Center the effect
+            effect.style.bottom = `${y - 50}px`; // Center the effect
+            effect.style.backgroundImage = 'url("popes.png")';
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                if (document.body.contains(effect)) {
+                    document.body.removeChild(effect);
+                }
+            }, 500);
+        }
+
+        function updateHealthBars() {
+            playerHealthBar.style.width = `${playerHealth}%`;
+            enemyHealthBar.style.width = `${enemyHealth}%`;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function updateLives() {
+            livesDisplay.textContent = `Lives: ${lives}`;
+        }
+
+        function endGame(playerWon) {
+            gameActive = false;
+            clearInterval(gameInterval);
+            clearTimeout(playerBeamTimeout);
+            clearTimeout(enemyBeamTimeout);
+            
+            gameOver.style.display = 'flex';
+            if (playerWon) {
+                resultText.textContent = 'YOU WON!';
+                // Add extra points for winning
+                score += lives * 500;
+                updateScore();
+            } else {
+                resultText.textContent = 'YOU LOST!';
+            }
+        }
+    </script>
+</body>
+</html>
